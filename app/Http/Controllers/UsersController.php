@@ -7,7 +7,9 @@ use App\Http\Requests;
 use App\Models\User;
 use Auth;
 use Mail;
-
+/**
+ * [UsersController description]
+ */
 class UsersController extends Controller
 {
     public function __construct()
@@ -19,19 +21,6 @@ class UsersController extends Controller
         $this->middleware('guest',[
             'only' => ['create'],
         ]);
-    }
-
-    public function confirmEmail($token)
-    {
-        $user = User::where('activation_token', $token)->firstOrFail();
-
-        $user->activated = true;
-        $user->activation_token = null;
-        $user->save();
-
-        Auth::login($user);
-        session()->flash('success', '恭喜你，激活成功！');
-        return redirect()->route('users.show', [$user]);
     }
 
     public function index()
@@ -115,6 +104,19 @@ class UsersController extends Controller
         Mail::send($view, $data, function ($message) use ($from, $name, $to, $subject) {
             $message->from($from, $name)->to($to)->subject($subject);
         });
+    }
+
+    public function confirmEmail($token)
+    {
+        $user = User::where('activation_token', $token)->firstOrFail();
+
+        $user->activated = true;
+        $user->activation_token = null;
+        $user->save();
+
+        Auth::login($user);
+        session()->flash('success', '恭喜你，激活成功！');
+        return redirect()->route('users.show', [$user]);
     }
 
     public function destroy(User $user)
